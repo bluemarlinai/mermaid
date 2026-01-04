@@ -3,34 +3,18 @@
   "name": "mermaid-online-editor",
   "builds": [
     {
-      "src": "**/*",
-      "use": "@vercel/static"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "buildCommand": "npm run build",
+        "outputDirectory": "dist"
+      }
     }
   ],
   "routes": [
     {
-      "src": "^/styles\\.css",
-      "dest": "/styles.css"
-    },
-    {
-      "src": "^/app\\.js",
-      "dest": "/app.js"
-    },
-    {
-      "src": "^/robots\\.txt",
-      "dest": "/robots.txt"
-    },
-    {
-      "src": "^/sitemap\\.xml",
-      "dest": "/sitemap.xml"
-    },
-    {
-      "src": "^/test\\.html",
-      "dest": "/test.html"
-    },
-    {
-      "src": "^/(.*)",
-      "dest": "/index.html"
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }

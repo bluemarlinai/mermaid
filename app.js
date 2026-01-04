@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Get DOM elements
-    const mermaidCode = document.getElementById('mermaid-code');
     const previewContainer = document.getElementById('preview-container');
     const mermaidPreview = document.getElementById('mermaid-preview');
     const copyBtn = document.getElementById('copy-btn');
@@ -15,11 +14,201 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadPngBtn = document.getElementById('download-png-btn');
     const clearBtn = document.getElementById('clear-btn');
     const diagramType = document.getElementById('diagram-type');
+    
+    // Template code for diagram types
+    const diagramTemplates = {
+        'flowchart': `graph TD
+    A[Start] --> B{Condition}
+    B -->|Yes| C[Action 1]
+    B -->|No| D[Action 2]
+    C --> E[End]
+    D --> E`,
+        'sequenceDiagram': `sequenceDiagram
+    participant A as Client
+    participant B as Server
+    A->>B: Request
+    B-->>A: Response`,
+        'classDiagram': `classDiagram
+    class Animal {
+        +String name
+        +void eat()
+    }
+    class Dog {
+        +void bark()
+    }
+    Animal <|-- Dog`,
+        'stateDiagram': `stateDiagram-v2
+    [*] --> Active
+    Active --> Inactive: Deactivate
+    Inactive --> Active: Activate
+    Inactive --> [*]: Terminate`,
+        'gantt': `gantt
+    title Project Timeline
+    dateFormat  YYYY-MM-DD
+    section Phase 1
+    Task 1: a1, 2023-01-01, 30d
+    section Phase 2
+    Task 2: a2, after a1, 20d`,
+        'pie': `pie
+    title Favorite Foods
+    "Pizza": 30
+    "Burger": 25
+    "Sushi": 45`
+    };
+
+    // Initialize Tiptap Editor
+    // Handle Tiptap Core and extensions loading - use correct global variable names
+    const Editor = window.Tiptap?.Editor || window.TiptapCore?.Editor;
+    const Document = window['@tiptap/extension-document']?.Document || window.TiptapExtensionDocument?.Document;
+    const Paragraph = window['@tiptap/extension-paragraph']?.Paragraph || window.TiptapExtensionParagraph?.Paragraph;
+    const Text = window['@tiptap/extension-text']?.Text || window.TiptapExtensionText?.Text;
+    const Code = window['@tiptap/extension-code']?.Code || window.TiptapExtensionCode?.Code;
+    const CodeBlock = window['@tiptap/extension-code-block']?.CodeBlock || window.TiptapExtensionCodeBlock?.CodeBlock;
+    const CodeBlockLowlight = window['@tiptap/extension-code-block-lowlight']?.CodeBlockLowlight || window.TiptapExtensionCodeBlockLowlight?.CodeBlockLowlight;
+    
+    // Check if all required components are loaded
+    if (!Editor || !Document || !Paragraph || !Text || !Code || !CodeBlockLowlight) {
+        console.error('Tiptap components failed to load');
+        console.log('Available globals:', Object.keys(window).filter(key => 
+            key.startsWith('Tiptap') || key.startsWith('@tiptap')));
+        console.log('Tiptap:', window.Tiptap);
+        console.log('TiptapCore:', window.TiptapCore);
+    }
+    
+    // Create Mermaid language for syntax highlighting
+    const mermaidLanguage = {
+        name: 'mermaid',
+        aliases: ['flowchart', 'sequence', 'class', 'state', 'gantt', 'pie'],
+        keywords: {
+            keyword: [
+                'graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 'stateDiagram', 
+                'gantt', 'pie', 'participant', 'actor', 'title', 'section', 'note',
+                'loop', 'alt', 'else', 'opt', 'par', 'and', 'or', 'break', 'critical',
+                'note', 'state', 'class', 'interface', 'abstract', 'static', 'final',
+                'direction', 'TB', 'TD', 'BT', 'RL', 'LR', 'rank', 'left', 'right',
+                'up', 'down', 'over', 'inside'
+            ],
+            literal: [
+                'true', 'false', 'null' 
+            ]
+        },
+        contains: [
+            {
+                className: 'string',
+                begin: '[',
+                end: ']'
+            },
+            {
+                className: 'string',
+                begin: '(',
+                end: ')' 
+            },
+            {
+                className: 'string',
+                begin: '{',
+                end: '}'
+            },
+            {
+                className: 'comment',
+                begin: '%%',
+                end: '$'
+            },
+            {
+                className: 'number',
+                begin: '\\b\\d+\\b'
+            }
+        ]
+    };
+    
+    // Register Mermaid language with lowlight
+    if (lowlight.register) {
+        lowlight.register(mermaidLanguage);
+    }
+    
+    // Create editor instance
+    let mermaidCode;
+    
+    try {
+        if (!Editor || !Document || !Paragraph || !Text || !CodeBlockLowlight) {
+            throw new Error('Missing required Tiptap components');
+        }
+        
+        mermaidCode = Editor.create({
+            element: document.getElementById('mermaid-code'),
+            extensions: [
+                Document,
+                Paragraph,
+                Text,
+                Code,
+                CodeBlockLowlight.configure({
+                    lowlight,
+                    defaultLanguage: 'mermaid'
+                })
+            ],
+            content: diagramTemplates['sequenceDiagram']
+        });
+        
+        console.log('Tiptap editor created successfully');
+        
+        // Add event listener for content changes
+        mermaidCode.on('update', renderMermaid);
+        
+        // Initial render
+        renderMermaid();
+    } catch (error) {
+        console.error('Failed to create Tiptap editor:', error);
+        console.log('Available Tiptap components:', {
+            Editor: !!Editor,
+            Document: !!Document,
+            Paragraph: !!Paragraph,
+            Text: !!Text,
+            Code: !!Code,
+            CodeBlockLowlight: !!CodeBlockLowlight
+        });
+        
+        // Fallback to simple textarea if Tiptap fails
+        const fallbackTextarea = document.createElement('textarea');
+        fallbackTextarea.id = 'fallback-editor';
+        fallbackTextarea.className = 'code-editor fallback-editor';
+        fallbackTextarea.value = diagramTemplates['sequenceDiagram'];
+        fallbackTextarea.style.width = '100%';
+        fallbackTextarea.style.height = '100%';
+        fallbackTextarea.style.padding = '10px';
+        fallbackTextarea.style.boxSizing = 'border-box';
+        
+        const editorContainer = document.getElementById('mermaid-code');
+        editorContainer.innerHTML = '';
+        editorContainer.appendChild(fallbackTextarea);
+        
+        // Update render function to work with textarea
+        fallbackTextarea.addEventListener('input', () => {
+            renderMermaidWithFallback(fallbackTextarea.value);
+        });
+        
+        // Initial render with fallback
+        renderMermaidWithFallback(fallbackTextarea.value);
+        
+        // Update global render function reference
+        window.renderMermaid = () => {
+            renderMermaidWithFallback(fallbackTextarea.value);
+        };
+    }
+    
+    // Fallback render function for textarea
+    async function renderMermaidWithFallback(code) {
+        try {
+            const result = await mermaid.render('mermaid-chart', code);
+            mermaidPreview.innerHTML = result.svg;
+            updateTransform();
+        } catch (error) {
+            console.error('Render error:', error);
+            mermaidPreview.innerHTML = `<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`;
+        }
+    }
 
 
     const zoomInBtn = document.getElementById('zoom-in');
     const zoomOutBtn = document.getElementById('zoom-out');
-    const zoomLevelDisplay = document.getElementById('zoom-level');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
 
     // Zoom and pan state
@@ -33,58 +222,66 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_ZOOM = 10;
     const ZOOM_STEP = 10;
 
-    // Template code for diagram types
-    const diagramTemplates = {
-        'flowchart': `graph TD
-    A[Start] --> B{Condition}
-    B -->|Yes| C[Action 1]
-    B -->|No| D[Action 2]
-    C --> E[End]
-    D --> E`,
-        'sequenceDiagram': `sequenceDiagram
-    participant Client
-    participant Server
-    Client->>Server: Request Data
-    Server-->>Client: Return Response`,
-        'classDiagram': `classDiagram
-    Class1 <|-- Class2
-    Class1 : Property1
-    Class1 : Method1()
-    Class2 : Property2
-    Class2 : Method2()`,
-        'stateDiagram': `stateDiagram-v2
-    [*] --> State1
-    State1 --> State2
-    State2 --> [*]`,
-        'gantt': `gantt
-    dateFormat YYYY-MM-DD
-    title Project Plan
-    section Phase 1
-    Task 1 :a1, 2024-01-01, 30d
-    Task 2 :after a1 , 20d
-    section Phase 2
-    Task 3 :2024-02-15 , 12d`,
-        'pie': `pie
-    title Pie Chart Example
-    "Category 1" : 30
-    "Category 2" : 20
-    "Category 3" : 50`
-    };
 
     // Render Mermaid chart
     async function renderMermaid() {
-        const code = mermaidCode.value;
+        // Get text content from editor - use different API methods depending on availability
+        let code;
         
         try {
+            // First check if mermaidCode editor instance exists
+            if (!mermaidCode || typeof mermaidCode !== 'object') {
+                // Check if fallback textarea is available
+                const fallbackEditor = document.getElementById('fallback-editor');
+                if (fallbackEditor) {
+                    code = fallbackEditor.value;
+                } else {
+                    throw new Error('No editor instance or fallback textarea available');
+                }
+            } else {
+                // Try different API methods to get text content
+                if (typeof mermaidCode.getText === 'function') {
+                    code = mermaidCode.getText();
+                } else if (typeof mermaidCode.content === 'string') {
+                    code = mermaidCode.content;
+                } else if (typeof mermaidCode.state?.doc?.textContent === 'string') {
+                    code = mermaidCode.state.doc.textContent;
+                } else {
+                    throw new Error('Could not get text content from Tiptap editor');
+                }
+            }
+            
             // Debug: Log the code being rendered
             console.log('Rendering code:', code);
+            console.log('Code type:', typeof code);
+            console.log('Code length:', code ? code.length : 'undefined');
+            
+            // Ensure code is a string and not empty
+            if (typeof code !== 'string') {
+                code = String(code || '');
+            }
+            
+            // Trim whitespace and check if code is not empty
+            code = code.trim();
+            if (!code) {
+                mermaidPreview.innerHTML = `<div style="color: #666; padding: 2rem;">Enter Mermaid code to see the preview</div>`;
+                return;
+            }
+            
             // Use Mermaid 10 Promise API for rendering
             const result = await mermaid.render('mermaid-chart', code);
+            
+            // Check if render result is valid
+            if (!result || !result.svg) {
+                throw new Error('Invalid render result from Mermaid');
+            }
+            
             mermaidPreview.innerHTML = result.svg;
             // Apply current zoom and pan transforms
             updateTransform();
         } catch (error) {
             console.error('Render error:', error);
+            console.error('Error stack:', error.stack);
             mermaidPreview.innerHTML = `<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`;
         }
     }
@@ -99,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function zoomIn() {
         if (zoomLevel < MAX_ZOOM) {
             zoomLevel += ZOOM_STEP;
-            updateZoomDisplay();
             updateTransform();
         }
     }
@@ -108,14 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function zoomOut() {
         if (zoomLevel > MIN_ZOOM) {
             zoomLevel -= ZOOM_STEP;
-            updateZoomDisplay();
             updateTransform();
         }
-    }
-
-    // Update zoom display
-    function updateZoomDisplay() {
-        zoomLevelDisplay.textContent = `${zoomLevel}%`;
     }
 
     // Handle drag start
@@ -167,7 +357,6 @@ document.addEventListener('DOMContentLoaded', () => {
             translateY = mouseYInContainer - (mouseYOnContent * newScale);
             
             zoomLevel = newZoomLevel;
-            updateZoomDisplay();
             updateTransform();
         }
     }
@@ -197,7 +386,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Copy code to clipboard
     async function copyCode() {
         try {
-            await navigator.clipboard.writeText(mermaidCode.value);
+            let code;
+            
+            // Check if using Tiptap editor or fallback textarea
+            if (mermaidCode && typeof mermaidCode.getText === 'function') {
+                code = mermaidCode.getText();
+            } else {
+                const fallbackEditor = document.getElementById('fallback-editor');
+                if (fallbackEditor) {
+                    code = fallbackEditor.value;
+                } else {
+                    throw new Error('No editor found');
+                }
+            }
+            
+            await navigator.clipboard.writeText(code);
             copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>';
             copyBtn.title = 'Copied';
             setTimeout(() => {
@@ -332,8 +535,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clear editor
     function clearEditor() {
         if (confirm('Are you sure you want to clear the current code?')) {
-            mermaidCode.value = '';
-            renderMermaid();
+            // Check if using Tiptap editor or fallback textarea
+            if (mermaidCode && mermaidCode.commands && typeof mermaidCode.commands.setContent === 'function') {
+                mermaidCode.commands.setContent('');
+                renderMermaid();
+            } else {
+                const fallbackEditor = document.getElementById('fallback-editor');
+                if (fallbackEditor) {
+                    fallbackEditor.value = '';
+                    renderMermaidWithFallback('');
+                }
+            }
         }
     }
 
@@ -344,12 +556,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load template when changing diagram type
     function changeDiagramType() {
         const selectedType = diagramType.value;
-        mermaidCode.value = diagramTemplates[selectedType];
-        renderMermaid();
+        const templateContent = diagramTemplates[selectedType] || '';
+        
+        // Check if using Tiptap editor or fallback textarea
+        if (mermaidCode && mermaidCode.commands && typeof mermaidCode.commands.setContent === 'function') {
+            mermaidCode.commands.setContent(templateContent);
+            renderMermaid();
+        } else {
+            const fallbackEditor = document.getElementById('fallback-editor');
+            if (fallbackEditor) {
+                fallbackEditor.value = templateContent;
+                renderMermaidWithFallback(templateContent);
+            }
+        }
     }
 
     // Event listeners
-    mermaidCode.addEventListener('input', renderMermaid);
     copyBtn.addEventListener('click', copyCode);
     downloadSvgBtn.addEventListener('click', downloadSvg);
     downloadPngBtn.addEventListener('click', downloadPng);
@@ -378,5 +600,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial render
     renderMermaid();
-    updateZoomDisplay();
 });

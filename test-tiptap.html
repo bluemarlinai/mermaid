@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiptap Test</title>
+    <!-- Test Tiptap Core -->
+    <script src="https://cdn.jsdelivr.net/npm/@tiptap/core@2/dist/tiptap-core.umd.min.js"></script>
+</head>
+<body>
+    <h1>Tiptap Core Test</h1>
+    <div id="output"></div>
+    
+    <script>
+        // Check what Tiptap Core exports
+        console.log('Window properties starting with "Tiptap":', 
+            Object.keys(window).filter(key => key.startsWith('Tiptap')));
+        
+        console.log('Window properties starting with "@tiptap":', 
+            Object.keys(window).filter(key => key.startsWith('@tiptap')));
+        
+        console.log('TiptapCore:', window.TiptapCore);
+        console.log('Tiptap:', window.Tiptap);
+        
+        // Write results to page
+        const output = document.getElementById('output');
+        output.innerHTML = `
+            <h2>Available globals:</h2>
+            <ul>
+                <li>TiptapCore: ${typeof window.TiptapCore}</li>
+                <li>Tiptap: ${typeof window.Tiptap}</li>
+                <li>All Tiptap-related: ${JSON.stringify(Object.keys(window).filter(key => key.startsWith('Tiptap') || key.startsWith('@tiptap')), null, 2)}</li>
+            </ul>
+        `;
+    </script>
+</body>
+</html>
