@@ -1,27 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 初始化 Mermaid
+    // Initialize Mermaid
     mermaid.initialize({
-        startOnLoad: false, // 关闭自动加载，手动控制渲染
+        startOnLoad: false, // Disable auto-loading, manually control rendering
         theme: 'default',
         securityLevel: 'loose'
     });
 
-    // 获取DOM元素
+    // Get DOM elements
     const mermaidCode = document.getElementById('mermaid-code');
     const previewContainer = document.getElementById('preview-container');
     const mermaidPreview = document.getElementById('mermaid-preview');
     const copyBtn = document.getElementById('copy-btn');
-    const downloadBtn = document.getElementById('download-btn');
+    const downloadSvgBtn = document.getElementById('download-svg-btn');
+    const downloadPngBtn = document.getElementById('download-png-btn');
     const clearBtn = document.getElementById('clear-btn');
     const diagramType = document.getElementById('diagram-type');
-    const iconGrid = document.getElementById('icon-grid');
-    const toggleIcons = document.getElementById('toggle-icons');
+
+
     const zoomInBtn = document.getElementById('zoom-in');
     const zoomOutBtn = document.getElementById('zoom-out');
     const zoomLevelDisplay = document.getElementById('zoom-level');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
 
-    // 缩放和平移状态
+    // Zoom and pan state
     let zoomLevel = 100;
     let isDragging = false;
     let startX = 0;
@@ -32,176 +33,350 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_ZOOM = 10;
     const ZOOM_STEP = 10;
 
-    // 图表类型对应的模板代码
+    // Template code for diagram types
     const diagramTemplates = {
         'flowchart': `graph TD
-    A[开始] --> B{条件判断}
-    B -->|是| C[执行操作1]
-    B -->|否| D[执行操作2]
-    C --> E[结束]
+    A[Start] --> B{Condition}
+    B -->|Yes| C[Action 1]
+    B -->|No| D[Action 2]
+    C --> E[End]
     D --> E`,
         'sequenceDiagram': `sequenceDiagram
-    participant 客户端
-    participant 服务器
-    客户端->>服务器: 请求数据
-    服务器-->>客户端: 返回响应`,
+    participant Client
+    participant Server
+    Client->>Server: Request Data
+    Server-->>Client: Return Response`,
         'classDiagram': `classDiagram
-    类名1 <|-- 类名2
-    类名1 : 属性1
-    类名1 : 方法1()
-    类名2 : 属性2
-    类名2 : 方法2()`,
+    Class1 <|-- Class2
+    Class1 : Property1
+    Class1 : Method1()
+    Class2 : Property2
+    Class2 : Method2()`,
         'stateDiagram': `stateDiagram-v2
-    [*] --> 状态1
-    状态1 --> 状态2
-    状态2 --> [*]`,
-        'entityRelationshipDiagram': `erDiagram
-    实体1 {
-        id int
-        name string
-    }
-    实体2 {
-        id int
-        value string
-    }
-    实体1 ||--o{ 实体2 : 关系}`,
+    [*] --> State1
+    State1 --> State2
+    State2 --> [*]`,
         'gantt': `gantt
     dateFormat YYYY-MM-DD
-    title 项目计划
-    section 阶段1
-    任务1 :a1, 2024-01-01, 30d
-    任务2 :after a1 , 20d
-    section 阶段2
-    任务3 :2024-02-15 , 12d`,
+    title Project Plan
+    section Phase 1
+    Task 1 :a1, 2024-01-01, 30d
+    Task 2 :after a1 , 20d
+    section Phase 2
+    Task 3 :2024-02-15 , 12d`,
         'pie': `pie
-    title 饼图示例
-    "分类1" : 30
-    "分类2" : 20
-    "分类3" : 50`,
-        'requirementDiagram': `requirementDiagram
-    requirement 需求1 {
-        description: 功能需求描述
-        source: 客户
-        verification: 测试用例
-    }`
+    title Pie Chart Example
+    "Category 1" : 30
+    "Category 2" : 20
+    "Category 3" : 50`
     };
 
-    // 渲染Mermaid图表
+    // Render Mermaid chart
     async function renderMermaid() {
         const code = mermaidCode.value;
         
         try {
-            // 使用Mermaid 10版本的Promise API进行渲染
+            // Debug: Log the code being rendered
+            console.log('Rendering code:', code);
+            // Use Mermaid 10 Promise API for rendering
             const result = await mermaid.render('mermaid-chart', code);
             mermaidPreview.innerHTML = result.svg;
+            // Apply current zoom and pan transforms
+            updateTransform();
         } catch (error) {
-            console.error('渲染错误:', error);
-            mermaidPreview.innerHTML = `<div style="color: red; padding: 2rem;">渲染错误: ${error.message}</div>`;
+            console.error('Render error:', error);
+            mermaidPreview.innerHTML = `<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`;
         }
     }
 
-    // 复制代码到剪贴板
+    // Update transform
+    function updateTransform() {
+        const scale = zoomLevel / 100;
+        mermaidPreview.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    }
+
+    // Zoom in
+    function zoomIn() {
+        if (zoomLevel < MAX_ZOOM) {
+            zoomLevel += ZOOM_STEP;
+            updateZoomDisplay();
+            updateTransform();
+        }
+    }
+
+    // Zoom out
+    function zoomOut() {
+        if (zoomLevel > MIN_ZOOM) {
+            zoomLevel -= ZOOM_STEP;
+            updateZoomDisplay();
+            updateTransform();
+        }
+    }
+
+    // Update zoom display
+    function updateZoomDisplay() {
+        zoomLevelDisplay.textContent = `${zoomLevel}%`;
+    }
+
+    // Handle drag start
+    function handleDragStart(e) {
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+    }
+
+    // Handle drag move
+    function handleDragMove(e) {
+        if (isDragging) {
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        }
+    }
+
+    // Handle drag end
+    function handleDragEnd() {
+        isDragging = false;
+    }
+
+    // Handle wheel zoom
+    function handleWheel(e) {
+        e.preventDefault();
+        
+        const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
+        const newZoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomLevel + delta));
+        
+        if (newZoomLevel !== zoomLevel) {
+            // Get preview container bounding rectangle
+            const containerRect = previewContainer.getBoundingClientRect();
+            
+            // Calculate mouse coordinates within preview container
+            const mouseXInContainer = e.clientX - containerRect.left;
+            const mouseYInContainer = e.clientY - containerRect.top;
+            
+            // Calculate current and new zoom scales
+            const oldScale = zoomLevel / 100;
+            const newScale = newZoomLevel / 100;
+            
+            // Calculate mouse coordinates relative to chart content (considering current translate and scale)
+            const mouseXOnContent = (mouseXInContainer - translateX) / oldScale;
+            const mouseYOnContent = (mouseYInContainer - translateY) / oldScale;
+            
+            // Calculate new translate to keep mouse-pointed content in same position
+            translateX = mouseXInContainer - (mouseXOnContent * newScale);
+            translateY = mouseYInContainer - (mouseYOnContent * newScale);
+            
+            zoomLevel = newZoomLevel;
+            updateZoomDisplay();
+            updateTransform();
+        }
+    }
+
+    // Toggle fullscreen
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            previewContainer.requestFullscreen().catch(err => {
+                console.error(`Fullscreen failed: ${err.message}`);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // Listen for fullscreen changes
+    function handleFullscreenChange() {
+        if (document.fullscreenElement) {
+            fullscreenBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5 3v3H2V2h4zm-2 9h3v3H3zm9-3V9h3v4zm0-10v3h-3V2z"/><path d="M11 13h-1v-1h1v1zm-1-1V8h-1v4zm-4 1h1v1H6v-1zm1-1V3h1v8zm7-10v1h-1V3zm-1 10h1v1h-1zm-11 0v-1h1v1zm1-1H3V3h1zm10-2h1V6h-1zm-10 2H2v1h1zm0-3h1V2H2zm12 0h-1v1h1z"/></svg>';
+            fullscreenBtn.title = 'Exit Fullscreen';
+        } else {
+            fullscreenBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1a.5.5 0 0 0-.5.5v4a.5.5 0 0 1-1 0v-4A1.5 1.5 0 0 1 1.5 0h4a.5.5 0 0 1 0 1h-4zM10 .5a.5.5 0 0 1 .5-.5h4A1.5 1.5 0 0 1 16 1.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 1-.5-.5zM.5 10a.5.5 0 0 1 .5.5v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 1 0 1h-4A1.5 1.5 0 0 1 0 14.5v-4a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v4a1.5 1.5 0 0 1-1.5 1.5h-4a.5.5 0 0 1 0-1h4a.5.5 0 0 0 .5-.5v-4a.5.5 0 0 1 .5-.5z"/></svg>';
+            fullscreenBtn.title = 'Fullscreen';
+        }
+    }
+
+    // Copy code to clipboard
     async function copyCode() {
         try {
             await navigator.clipboard.writeText(mermaidCode.value);
-            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg> 已复制';
+            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>';
+            copyBtn.title = 'Copied';
             setTimeout(() => {
-                copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg> 复制代码';
+                copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>';
+                copyBtn.title = 'Copy Code';
             }, 2000);
         } catch (error) {
-            console.error('复制失败:', error);
-            alert('复制失败，请手动复制');
+            console.error('Copy failed:', error);
+            alert('Copy failed, please copy manually');
         }
     }
 
-    // 下载图表为图片
-    function downloadChart() {
+    // Download chart as SVG
+    function downloadSvg() {
         const svgElement = mermaidPreview.querySelector('svg');
         if (!svgElement) {
-            alert('没有可下载的图表');
+            alert('No chart to download');
             return;
         }
 
         try {
+            // Download as SVG (vector format)
             const svgData = new XMLSerializer().serializeToString(svgElement);
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
             
-            const img = new Image();
-            img.onload = () => {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                
-                const pngData = canvas.toDataURL('image/png');
-                const downloadLink = document.createElement('a');
-                downloadLink.download = 'mermaid-chart.png';
-                downloadLink.href = pngData;
-                downloadLink.click();
-            };
+            const downloadLink = document.createElement('a');
+            downloadLink.download = 'mermaid-chart.svg';
+            downloadLink.href = url;
+            downloadLink.style.display = 'none';
             
-            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+            // Append to document to ensure click works
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            
+            // Clean up
+            document.body.removeChild(downloadLink);
+            URL.revokeObjectURL(url);
         } catch (error) {
-            console.error('下载失败:', error);
-            alert('下载失败，请重试');
+            console.error('SVG download failed:', error);
+            alert('SVG下载失败，请重试。错误信息: ' + error.message);
         }
     }
 
-    // 清空编辑器
+    // Download chart as high-quality PNG
+    function downloadPng() {
+        const svgElement = mermaidPreview.querySelector('svg');
+        if (!svgElement) {
+            alert('No chart to download');
+            return;
+        }
+
+        try {
+            // Download as high-quality PNG
+            const originalWidth = svgElement.getAttribute('width') || svgElement.clientWidth;
+            const originalHeight = svgElement.getAttribute('height') || svgElement.clientHeight;
+            
+            // Create a copy of the SVG
+            const svgCopy = svgElement.cloneNode(true);
+            svgCopy.setAttribute('width', originalWidth);
+            svgCopy.setAttribute('height', originalHeight);
+            svgCopy.setAttribute('style', 'transform: none;');
+            
+            const svgData = new XMLSerializer().serializeToString(svgCopy);
+            
+            // Properly encode SVG data for image loading
+            const encodedSvg = encodeURIComponent(svgData)
+                .replace(/\+/g, '%20')
+                .replace(/%20/g, ' ')
+                .replace(/%3D/g, '=')
+                .replace(/%3A/g, ':')
+                .replace(/%2F/g, '/')
+                .replace(/%22/g, '\"');
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const dpr = window.devicePixelRatio || 2;
+            const qualityScale = 2; // Additional quality multiplier
+            
+            const img = new Image();
+            img.onload = () => {
+                try {
+                    // Use high resolution for PNG
+                    const targetWidth = img.width * qualityScale * dpr;
+                    const targetHeight = img.height * qualityScale * dpr;
+                    
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+                    
+                    // Set canvas background to white
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, targetWidth, targetHeight);
+                    
+                    // Draw image with high quality scaling
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    
+                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                    
+                    const pngData = canvas.toDataURL('image/png', 1.0); // 1.0 = maximum quality
+                    const downloadLink = document.createElement('a');
+                    downloadLink.download = 'mermaid-chart.png';
+                    downloadLink.href = pngData;
+                    downloadLink.style.display = 'none';
+                    
+                    // Append to document to ensure click works
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    
+                    // Clean up
+                    document.body.removeChild(downloadLink);
+                } catch (pngError) {
+                    console.error('PNG generation failed:', pngError);
+                    alert('PNG generation failed. Please try SVG format instead.');
+                }
+            };
+            
+            img.onerror = () => {
+                console.error('SVG image loading failed');
+                alert('SVG to PNG conversion failed. Please try SVG format instead.');
+            };
+            
+            // Use data URL with proper encoding
+            img.src = 'data:image/svg+xml;charset=utf-8,' + encodedSvg;
+        } catch (error) {
+            console.error('PNG download failed:', error);
+            alert('PNG下载失败，请重试。错误信息: ' + error.message);
+        }
+    }
+
+    // Clear editor
     function clearEditor() {
-        if (confirm('确定要清空当前代码吗？')) {
+        if (confirm('Are you sure you want to clear the current code?')) {
             mermaidCode.value = '';
             renderMermaid();
         }
     }
 
-    // 切换图标库显示
-    function toggleIconLibrary() {
-        const iconLibrary = document.querySelector('.icon-library');
-        const isCollapsed = iconLibrary.style.maxHeight === '0px' || iconLibrary.style.maxHeight === '';
-        
-        if (isCollapsed) {
-            iconLibrary.style.maxHeight = iconLibrary.scrollHeight + 'px';
-        } else {
-            iconLibrary.style.maxHeight = '0px';
-        }
-    }
 
-    // 插入图标代码到编辑器
-    function insertIconCode(iconCode) {
-        const cursorPosition = mermaidCode.selectionStart;
-        const textBeforeCursor = mermaidCode.value.substring(0, cursorPosition);
-        const textAfterCursor = mermaidCode.value.substring(cursorPosition);
-        
-        mermaidCode.value = textBeforeCursor + iconCode + textAfterCursor;
-        mermaidCode.focus();
-        mermaidCode.setSelectionRange(cursorPosition + iconCode.length, cursorPosition + iconCode.length);
-        renderMermaid();
-    }
 
-    // 切换图表类型时加载模板
+
+
+    // Load template when changing diagram type
     function changeDiagramType() {
         const selectedType = diagramType.value;
         mermaidCode.value = diagramTemplates[selectedType];
         renderMermaid();
     }
 
-    // 事件监听
+    // Event listeners
     mermaidCode.addEventListener('input', renderMermaid);
     copyBtn.addEventListener('click', copyCode);
-    downloadBtn.addEventListener('click', downloadChart);
+    downloadSvgBtn.addEventListener('click', downloadSvg);
+    downloadPngBtn.addEventListener('click', downloadPng);
     clearBtn.addEventListener('click', clearEditor);
     diagramType.addEventListener('change', changeDiagramType);
-    toggleIcons.addEventListener('click', toggleIconLibrary);
 
-    // 图标点击事件
-    iconGrid.addEventListener('click', (e) => {
-        if (e.target.classList.contains('icon-item')) {
-            const iconCode = e.target.dataset.code;
-            insertIconCode(iconCode);
-        }
-    });
+    
+    // Zoom events
+    zoomInBtn.addEventListener('click', zoomIn);
+    zoomOutBtn.addEventListener('click', zoomOut);
+    
+    // Drag events
+    previewContainer.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('mouseleave', handleDragEnd);
+    
+    // Wheel zoom event
+    previewContainer.addEventListener('wheel', handleWheel, { passive: false });
+    
+    // Fullscreen events
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    
 
-    // 初始化渲染
+
+    // Initial render
     renderMermaid();
+    updateZoomDisplay();
 });
