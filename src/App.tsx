@@ -116,8 +116,68 @@ const App: React.FC = () => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number>(0);
   const [startY, setStartY] = useState<number>(0);
+  const [chartStyle, setChartStyle] = useState<string>('default');
   const previewRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Define available chart styles
+  const chartStyles = {
+    default: {
+      name: 'Default',
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#6366f1',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#4f46e5',
+        lineColor: '#1f2937',
+        textColor: '#1f2937',
+        secondaryColor: '#ec4899',
+        tertiaryColor: '#f3f4f6'
+      }
+    },
+    handDrawn: {
+      name: 'Hand Drawn',
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#6366f1',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#4f46e5',
+        lineColor: '#1f2937',
+        textColor: '#1f2937',
+        secondaryColor: '#ec4899',
+        tertiaryColor: '#f3f4f6'
+      },
+      cssFilter: 'url(#handDrawnFilter)'
+    },
+    dark: {
+      name: 'Dark',
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#8b5cf6',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#7c3aed',
+        lineColor: '#e5e7eb',
+        textColor: '#e5e7eb',
+        secondaryColor: '#ec4899',
+        tertiaryColor: '#374151'
+      }
+    },
+    outline: {
+      name: 'Outline',
+      theme: 'base',
+      themeVariables: {
+        primaryColor: 'transparent',
+        primaryTextColor: '#1f2937',
+        primaryBorderColor: '#6366f1',
+        lineColor: '#1f2937',
+        textColor: '#1f2937',
+        secondaryColor: 'transparent',
+        secondaryBorderColor: '#ec4899',
+        tertiaryColor: 'transparent',
+        tertiaryBorderColor: '#9ca3af'
+      }
+    }
+  };
 
   const MAX_ZOOM = 500;
   const MIN_ZOOM = 10;
@@ -156,19 +216,14 @@ const App: React.FC = () => {
 
   // Initialize Mermaid with basic configuration
   useEffect(() => {
+    // Get current style configuration
+    const currentStyle = chartStyles[chartStyle];
+    
     // Initialize Mermaid with updated theme for better visibility
     mermaid.initialize({
       startOnLoad: false,
-      theme: 'base',
-      themeVariables: {
-        primaryColor: '#6366f1',
-        primaryTextColor: '#ffffff',
-        primaryBorderColor: '#4f46e5',
-        lineColor: '#1f2937',
-        textColor: '#1f2937',
-        secondaryColor: '#ec4899',
-        tertiaryColor: '#f3f4f6'
-      },
+      theme: currentStyle.theme,
+      themeVariables: currentStyle.themeVariables,
       securityLevel: 'loose'
     });
 
@@ -177,7 +232,13 @@ const App: React.FC = () => {
       try {
         // Simplified render call - Mermaid doesn't expect config as third parameter
         const result = await mermaid.render('mermaid-chart', diagramTemplates.sequenceDiagram);
-        setMermaidSvg(result.svg);
+        
+        // Apply CSS filter if defined for the style
+        if (currentStyle.cssFilter) {
+          setMermaidSvg(result.svg.replace('<svg', `<svg style="filter: ${currentStyle.cssFilter}"`));
+        } else {
+          setMermaidSvg(result.svg);
+        }
       } catch (error: any) {
         console.error('Default chart render error:', error);
         setMermaidSvg(`<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`);
@@ -193,6 +254,12 @@ const App: React.FC = () => {
     renderMermaid(code);
   }, [code]);
 
+  // Render chart whenever style changes
+  useEffect(() => {
+    console.log('useEffect: style changed, calling renderMermaid');
+    renderMermaid(code);
+  }, [chartStyle, code]);
+
   // Render Mermaid chart when editor content changes
   const renderMermaid = async (code: string) => {
     console.log('renderMermaid: Start rendering with code:', code.substring(0, 50) + '...');
@@ -203,11 +270,26 @@ const App: React.FC = () => {
         return;
       }
 
+      // Get current style configuration
+      const currentStyle = chartStyles[chartStyle];
+      
+      // Update Mermaid theme configuration before rendering
+      mermaid.initialize({
+        theme: currentStyle.theme,
+        themeVariables: currentStyle.themeVariables
+      });
+      
       // Render Mermaid chart - remove the third parameter that's causing issues
       console.log('renderMermaid: Calling mermaid.render');
       const result = await mermaid.render('mermaid-chart', code);
       console.log('renderMermaid: Render completed, result:', result.svg.substring(0, 100) + '...');
-      setMermaidSvg(result.svg);
+      
+      // Apply CSS filter if defined for the style
+      if (currentStyle.cssFilter) {
+        setMermaidSvg(result.svg.replace('<svg', `<svg style="filter: ${currentStyle.cssFilter}"`));
+      } else {
+        setMermaidSvg(result.svg);
+      }
       console.log('renderMermaid: setMermaidSvg called');
     } catch (error: any) {
       console.error('Mermaid rendering error:', error);
@@ -307,7 +389,7 @@ const App: React.FC = () => {
 
   // Download SVG
   const downloadSvg = () => {
-    const svgElement = document.querySelector('#mermaid-chart svg');
+    const svgElement = document.querySelector('#mermaid-preview svg');
     if (!svgElement) {
       alert('No chart to download');
       return;
@@ -336,7 +418,7 @@ const App: React.FC = () => {
 
   // Download PNG
   const downloadPng = () => {
-    const svgElement = document.querySelector('#mermaid-chart svg');
+    const svgElement = document.querySelector('#mermaid-preview svg');
     if (!svgElement) {
       alert('No chart to download');
       return;
@@ -402,6 +484,13 @@ const App: React.FC = () => {
 
   return (
     <div className="app-container">
+      {/* SVG filter for hand-drawn style */}
+      <svg style={{ display: 'none' }}>
+        <filter id="handDrawnFilter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="noise" seed="1"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </svg>
       <header className="app-header">
         <div className="header-content">
           <img src={icon} alt="Logo" className="header-logo" />
@@ -449,6 +538,12 @@ const App: React.FC = () => {
 
         <div className="preview-container" ref={containerRef}>
           <div className="preview-toolbar">
+            <label htmlFor="chart-style">Style:</label>
+            <select id="chart-style" value={chartStyle} onChange={(e) => setChartStyle(e.target.value)} className="style-select">
+              {Object.entries(chartStyles).map(([key, style]) => (
+                <option key={key} value={key}>{style.name}</option>
+              ))}
+            </select>
             <button id="zoom-out" className="toolbar-btn" title="Zoom Out" onClick={zoomOut}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
