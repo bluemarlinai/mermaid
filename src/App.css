@@ -69,6 +69,54 @@
 .toolbar-btn span {
   font-size: 0.8rem;
   font-weight: 500;
+  color: #1f2937;
+}
+
+/* Download button specific styles */
+#download-svg-btn,
+#download-png-btn {
+  width: 2.25rem; /* Same size as other buttons */
+  height: 2.25rem; /* Same size as other buttons */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #1f2937;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.125rem 0;
+}
+
+/* Download button icon container */
+.download-btn-icon {
+  width: 100%;
+  height: 65%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: transparent;
+}
+
+/* Download button text container */
+.download-btn-text {
+  width: 100%;
+  height: 35%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: 0.45rem;
+  line-height: 0.45rem;
+  padding-top: 0.1rem;
+}
+
+/* Download button arrow icon */
+#download-svg-btn svg,
+#download-png-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: #1f2937;
 }
 
 .toolbar-btn::before {
@@ -84,14 +132,8 @@
 
 .toolbar-btn:hover {
   background: rgba(255, 255, 255, 0.9);
-  color: #1f2937;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 25px rgba(204, 204, 204, 0.3);
   border-color: rgba(226, 232, 240, 0.8);
-}
-
-.toolbar-btn:hover::before {
-  left: 100%;
 }
 
 .toolbar-btn:active {
@@ -114,6 +156,7 @@
   width: 16px;
   height: 16px;
   stroke-width: 2;
+  fill: #1f2937;
 }
 
 .app-main {
