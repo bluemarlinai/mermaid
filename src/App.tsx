@@ -153,26 +153,26 @@ const App: React.FC = () => {
       name: 'Default',
       theme: 'base',
       themeVariables: {
-        primaryColor: '#6366f1',
+        primaryColor: '#3b82f6', // 更清晰的蓝色
         primaryTextColor: '#ffffff',
-        primaryBorderColor: '#4f46e5',
-        lineColor: '#1f2937',
-        textColor: '#1f2937',
+        primaryBorderColor: '#2563eb',
+        lineColor: '#4b5563', // 柔和的深灰色线条
+        textColor: '#374151', // 柔和的深灰色文字
         secondaryColor: '#ec4899',
-        tertiaryColor: '#f3f4f6'
+        tertiaryColor: '#f9fafb'
       }
     },
     handDrawn: {
       name: 'Hand Drawn',
       theme: 'base',
       themeVariables: {
-        primaryColor: '#6366f1',
+        primaryColor: '#3b82f6', // 更清晰的蓝色
         primaryTextColor: '#ffffff',
-        primaryBorderColor: '#4f46e5',
-        lineColor: '#1f2937',
-        textColor: '#1f2937',
+        primaryBorderColor: '#2563eb',
+        lineColor: '#4b5563', // 柔和的深灰色线条
+        textColor: '#374151', // 柔和的深灰色文字
         secondaryColor: '#ec4899',
-        tertiaryColor: '#f3f4f6'
+        tertiaryColor: '#f9fafb'
       },
       cssFilter: 'url(#handDrawnFilter)'
     },
@@ -351,6 +351,7 @@ const App: React.FC = () => {
 
   // Drag functions
   const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault(); // 阻止默认文本选择行为
     setIsDragging(true);
     setStartX(e.clientX - translateX);
     setStartY(e.clientY - translateY);
@@ -613,7 +614,8 @@ const App: React.FC = () => {
               dangerouslySetInnerHTML={{ __html: mermaidSvg }}
               style={{
                 transform: `translate(${translateX}px, ${translateY}px) scale(${zoomLevel / 100})`,
-                transformOrigin: '0 0'
+                transformOrigin: '0 0',
+                userSelect: 'none' // CSS方式阻止文本选择
               }}
               onMouseDown={handleDragStart}
               onMouseMove={handleDragMove}
