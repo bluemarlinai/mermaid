@@ -1,5 +1,12 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 .app-container {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
@@ -480,21 +487,31 @@
   padding: 2rem;
   overflow: auto;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   background: #fefefe;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   position: relative;
-  transform-origin: 0 0;
+  /* 隐藏滚动条但保持滚动功能 */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#mermaid-preview::-webkit-scrollbar {
+  display: none;
+}
+
+.mermaid-content {
+  display: inline-block;
   cursor: grab;
 }
 
-#mermaid-preview:active {
+.mermaid-content:active {
   cursor: grabbing;
 }
 
-#mermaid-preview svg {
+.mermaid-content svg {
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
 }
 

@@ -483,17 +483,21 @@ const App: React.FC = () => {
             id="mermaid-preview"
             ref={previewRef}
             className="mermaid"
-            dangerouslySetInnerHTML={{ __html: mermaidSvg }}
-            style={{
-              transform: `translate(${translateX}px, ${translateY}px) scale(${zoomLevel / 100})`,
-              transformOrigin: '0 0'
-            }}
-            onMouseDown={handleDragStart}
-            onMouseMove={handleDragMove}
-            onMouseUp={handleDragEnd}
-            onMouseLeave={handleDragEnd}
             onWheel={handleWheel}
-          />
+          >
+            <div
+              className="mermaid-content"
+              dangerouslySetInnerHTML={{ __html: mermaidSvg }}
+              style={{
+                transform: `translate(${translateX}px, ${translateY}px) scale(${zoomLevel / 100})`,
+                transformOrigin: '0 0'
+              }}
+              onMouseDown={handleDragStart}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
+            />
+          </div>
         </div>
       </div>
     </div>
