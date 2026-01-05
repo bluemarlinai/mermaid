@@ -776,19 +776,22 @@ const App: React.FC = () => {
             ref={previewRef}
             className="mermaid"
             onWheel={handleWheel}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            style={{
+              cursor: isDragging ? 'grabbing' : 'grab',
+              userSelect: 'none'
+            }}
           >
             <div
               className="mermaid-content"
               dangerouslySetInnerHTML={{ __html: mermaidSvg }}
               style={{
                 transform: `translate(${translateX}px, ${translateY}px) scale(${zoomLevel / 100})`,
-                transformOrigin: '0 0',
-                userSelect: 'none' // CSS方式阻止文本选择
+                transformOrigin: '0 0'
               }}
-              onMouseDown={handleDragStart}
-              onMouseMove={handleDragMove}
-              onMouseUp={handleDragEnd}
-              onMouseLeave={handleDragEnd}
             />
           </div>
         </div>
