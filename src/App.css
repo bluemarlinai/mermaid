@@ -336,54 +336,18 @@ html, body {
 .ProseMirror pre {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   border-radius: 8px;
-  padding: 1.5rem 1.5rem 1.5rem 3.5rem;
+  padding: 1.5rem;
   overflow-x: auto;
   margin: 0;
   position: relative;
-  counter-reset: line;
+
   font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.95rem;
   line-height: 1.6;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Dynamic line numbers */
-.ProseMirror pre {
-  position: relative;
-  padding-left: 3.5rem;
-  overflow: auto;
-}
-
-.line-numbers {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 3rem;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 1.5rem 0;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: right;
-  user-select: none;
-  pointer-events: none;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-.line-number {
-  padding-right: 0.75rem;
-  flex-shrink: 0;
-  height: 1.6em;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
+/* Monaco Editor line numbers are handled by the editor itself */
 
 /* Ensure code content wraps properly */
 .ProseMirror pre code {
