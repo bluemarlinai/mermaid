@@ -569,13 +569,23 @@ const App: React.FC = () => {
       // Set up the image loading
       img.onload = async () => {
         try {
-          // Set canvas size to match image
-          canvas.width = img.width;
-          canvas.height = img.height;
+          // Calculate scale factor based on current zoom level
+          const scaleFactor = zoomLevel / 100;
           
-          // Draw the image on the canvas
+          // Use scroll dimensions to get the full SVG content size
+          const svgWidth = svgElement.scrollWidth || img.width;
+          const svgHeight = svgElement.scrollHeight || img.height;
+          
+          // Set canvas size to match scaled image
+          canvas.width = svgWidth * scaleFactor;
+          canvas.height = svgHeight * scaleFactor;
+          
+          // Reset all transformations
+          context.setTransform(1, 0, 0, 1, 0, 0);
+          
+          // Draw the image scaled to the canvas size
           context.clearRect(0, 0, canvas.width, canvas.height);
-          context.drawImage(img, 0, 0);
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
           
           // Convert canvas to PNG and copy to clipboard
           canvas.toBlob(async (blob) => {
