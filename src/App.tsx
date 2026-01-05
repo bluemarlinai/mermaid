@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import mermaid from 'mermaid';
+import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 import icon from './assets/icon.png';
 
@@ -517,6 +518,7 @@ const App: React.FC = () => {
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
       </svg>
+      <Analytics />
       <header className="app-header">
         <div className="header-content">
           <img src={icon} alt="Logo" className="header-logo" />
