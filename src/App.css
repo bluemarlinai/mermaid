@@ -208,6 +208,8 @@ html, body {
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
+  height: calc(100vh - 8rem); /* 减去header的高度 */
 }
 
 .editor-container, .preview-container {
@@ -221,6 +223,7 @@ html, body {
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 0; /* 解决flex子元素溢出问题 */
 }
 
 .editor-container:hover, .preview-container:hover {
@@ -289,11 +292,12 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0; /* 解决flex子元素溢出问题 */
 }
 
 .code-editor {
   flex: 1;
-  padding: 1.5rem;
+  padding: 0;
   border: none;
   resize: none;
   font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -306,6 +310,7 @@ html, body {
   word-wrap: break-word;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
+  min-height: 0;
 }
 
 /* Tiptap editor styles */
@@ -490,18 +495,15 @@ html, body {
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
   position: relative;
-  /* 隐藏滚动条但保持滚动功能 */
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  min-height: 0;
 }
 
-#mermaid-preview::-webkit-scrollbar {
-  display: none;
-}
+
 
 .mermaid-content {
   display: inline-block;
   cursor: grab;
+  max-height: 100%;
 }
 
 .mermaid-content:active {
@@ -510,6 +512,7 @@ html, body {
 
 .mermaid-content svg {
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+  max-height: 100%;
 }
 
 /* Responsive design */
