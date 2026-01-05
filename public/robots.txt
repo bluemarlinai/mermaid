@@ -7,5 +7,5 @@ Disallow: /dist/
 Disallow: /src/
 Disallow: /public/
 
-# 网站地图位置
+# 网站地图位置 (English and Chinese versions)
 Sitemap: https://mermaid-editor.example.com/sitemap.xml
