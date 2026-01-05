@@ -71,14 +71,12 @@ html, body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.15);
   letter-spacing: 1px;
   transition: all 0.3s ease;
 }
 
 .artistic-font:hover {
-  transform: translateY(-2px);
-  text-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+  font-family: 'Brush Script MT', 'Arial', sans-serif;
 }
 
 .toolbar {
@@ -216,7 +214,7 @@ html, body {
   flex: 1;
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(15px);
-  border-radius: 16px;
+  border-radius: 4px;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
@@ -227,7 +225,6 @@ html, body {
 
 .editor-container:hover, .preview-container:hover {
   box-shadow: 0 20px 64px rgba(0, 0, 0, 0.25);
-  transform: translateY(-2px);
 }
 
 .editor-header {
