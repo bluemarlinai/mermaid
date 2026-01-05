@@ -68,7 +68,7 @@ monaco.languages.setLanguageConfiguration('mermaid', {
 
 // Template code for diagram types
 const diagramTemplates = {
-  'flowchart': `flowchart TD
+  'flowchart': `graph TD
     A[Start] --> B{Condition}
     B -->|Yes| C[Action 1]
     B -->|No| D[Action 2]
@@ -148,8 +148,9 @@ const App: React.FC = () => {
   // Handle editor content changes
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
+      console.log('handleEditorChange: value changed, calling setCode');
       setCode(value);
-      renderMermaid(value);
+      // renderMermaid will be called automatically by useEffect when code changes
     }
   };
 
@@ -186,17 +187,28 @@ const App: React.FC = () => {
     renderDefaultChart();
   }, []);
 
+  // Render chart whenever code changes
+  useEffect(() => {
+    console.log('useEffect: code changed, calling renderMermaid');
+    renderMermaid(code);
+  }, [code]);
+
   // Render Mermaid chart when editor content changes
   const renderMermaid = async (code: string) => {
+    console.log('renderMermaid: Start rendering with code:', code.substring(0, 50) + '...');
     try {
       if (!code.trim()) {
+        console.log('renderMermaid: Empty code, showing placeholder');
         setMermaidSvg('<div style="color: #666; padding: 2rem;">Enter Mermaid code to see the preview</div>');
         return;
       }
 
       // Render Mermaid chart - remove the third parameter that's causing issues
+      console.log('renderMermaid: Calling mermaid.render');
       const result = await mermaid.render('mermaid-chart', code);
+      console.log('renderMermaid: Render completed, result:', result.svg.substring(0, 100) + '...');
       setMermaidSvg(result.svg);
+      console.log('renderMermaid: setMermaidSvg called');
     } catch (error: any) {
       console.error('Mermaid rendering error:', error);
       setMermaidSvg(`<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`);
@@ -206,15 +218,16 @@ const App: React.FC = () => {
   // Handle diagram type change
   const handleDiagramTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newType = e.target.value;
+    console.log('handleDiagramTypeChange: Changing to', newType);
     setDiagramType(newType);
     
     // Get the template for the selected diagram type
     const template = diagramTemplates[newType as keyof typeof diagramTemplates];
     if (template) {
       // Set the new content directly for Monaco editor
+      console.log('handleDiagramTypeChange: Setting code to template');
       setCode(template);
-      // Render immediately
-      renderMermaid(template);
+      // renderMermaid will be called automatically by useEffect when code changes
     }
   };
 
