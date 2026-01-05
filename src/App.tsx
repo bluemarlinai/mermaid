@@ -151,6 +151,10 @@ const App: React.FC = () => {
   const [startX, setStartX] = useState<number>(0);
   const [startY, setStartY] = useState<number>(0);
   const [chartStyle, setChartStyle] = useState<'default' | 'handDrawn' | 'dark' | 'outline'>('default');
+  // Notification state
+  const [notificationMessage, setNotificationMessage] = useState<string>('');
+  const [notificationType, setNotificationType] = useState<'success' | 'error' | 'info'>('success');
+  const [notificationVisible, setNotificationVisible] = useState<boolean>(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -543,7 +547,7 @@ const App: React.FC = () => {
   const copyImage = () => {
     const svgElement = document.querySelector('#mermaid-preview svg');
     if (!svgElement) {
-      alert('No chart to copy');
+      showNotification('No chart to copy', 'error');
       return;
     }
 
@@ -587,11 +591,11 @@ const App: React.FC = () => {
             ]);
             
             // Show success message
-            alert('Chart copied to clipboard!');
+            showNotification('Chart copied to clipboard!', 'success');
           }, 'image/png');
         } catch (error) {
           console.error('Failed to copy image:', error);
-          alert('Failed to copy image, please try again');
+          showNotification('Failed to copy image, please try again', 'error');
         }
       };
       
@@ -604,7 +608,7 @@ const App: React.FC = () => {
       img.src = URL.createObjectURL(svgBlob);
     } catch (error) {
       console.error('Copy image failed:', error);
-      alert('Copy image failed, please try again');
+      showNotification('Copy image failed, please try again', 'error');
     }
   };
 
@@ -613,6 +617,24 @@ const App: React.FC = () => {
     setCode('');
     renderMermaid('');
   };
+
+  // Show notification
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setNotificationVisible(true);
+  };
+
+  // Auto hide notification after 3 seconds
+  useEffect(() => {
+    if (notificationVisible) {
+      const timer = setTimeout(() => {
+        setNotificationVisible(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [notificationVisible]);
 
   return (
     <div className="app-container">
@@ -624,6 +646,32 @@ const App: React.FC = () => {
         </filter>
       </svg>
       <Analytics />
+      
+      {/* Notification Component */}
+      {notificationVisible && (
+        <div 
+          className={`notification notification-${notificationType}`}
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '500',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: '1000',
+            opacity: notificationVisible ? 1 : 0,
+            transition: 'opacity 0.3s ease-in-out',
+            backgroundColor: notificationType === 'success' ? '#10b981' : 
+                           notificationType === 'error' ? '#ef4444' : '#3b82f6'
+          }}
+        >
+          {notificationMessage}
+        </div>
+      )}
+      
       <header className="app-header">
         <div className="header-content">
           <img src={icon} alt="Logo" className="header-logo" />
