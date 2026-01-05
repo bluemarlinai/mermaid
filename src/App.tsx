@@ -107,6 +107,32 @@ const diagramTemplates = {
     "Sushi": 45`
 };
 
+// Define chart style type
+interface ChartStyleConfig {
+  name: string;
+  theme: 'default' | 'base' | 'dark' | 'forest' | 'neutral' | 'null';
+  themeVariables: {
+    primaryColor: string;
+    primaryTextColor: string;
+    primaryBorderColor: string;
+    lineColor: string;
+    textColor: string;
+    secondaryColor: string;
+    tertiaryColor?: string;
+    secondaryBorderColor?: string;
+    tertiaryBorderColor?: string;
+  };
+  cssFilter?: string;
+}
+
+// Define chart styles type
+interface ChartStyles {
+  default: ChartStyleConfig;
+  handDrawn: ChartStyleConfig;
+  dark: ChartStyleConfig;
+  outline: ChartStyleConfig;
+}
+
 const App: React.FC = () => {
   const [diagramType, setDiagramType] = useState<string>('sequenceDiagram');
   const [mermaidSvg, setMermaidSvg] = useState<string>('');
@@ -116,12 +142,12 @@ const App: React.FC = () => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startX, setStartX] = useState<number>(0);
   const [startY, setStartY] = useState<number>(0);
-  const [chartStyle, setChartStyle] = useState<string>('default');
+  const [chartStyle, setChartStyle] = useState<'default' | 'handDrawn' | 'dark' | 'outline'>('default');
   const previewRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Define available chart styles
-  const chartStyles = {
+  const chartStyles: ChartStyles = {
     default: {
       name: 'Default',
       theme: 'base',
@@ -539,7 +565,7 @@ const App: React.FC = () => {
         <div className="preview-container" ref={containerRef}>
           <div className="preview-toolbar">
             <label htmlFor="chart-style">Style:</label>
-            <select id="chart-style" value={chartStyle} onChange={(e) => setChartStyle(e.target.value)} className="style-select">
+            <select id="chart-style" value={chartStyle} onChange={(e) => setChartStyle(e.target.value as 'default' | 'handDrawn' | 'dark' | 'outline')} className="style-select">
               {Object.entries(chartStyles).map(([key, style]) => (
                 <option key={key} value={key}>{style.name}</option>
               ))}
