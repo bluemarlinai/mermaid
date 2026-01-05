@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import mermaid from 'mermaid';
 import './App.css';
+import icon from './assets/icon.png';
 
 // Define Mermaid syntax highlighting using Monarch
 monaco.languages.register({
@@ -389,7 +390,10 @@ const App: React.FC = () => {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Mermaid Online Editor</h1>
+        <div className="header-content">
+          <img src={icon} alt="Logo" className="header-logo" />
+          <h1 className="artistic-font">Mermaid Online Editor</h1>
+        </div>
       </header>
 
       <div className="app-main">
