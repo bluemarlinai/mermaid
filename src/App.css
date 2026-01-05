@@ -313,71 +313,10 @@ html, body {
   min-height: 0;
 }
 
-/* Tiptap editor styles */
-.ProseMirror {
-  flex: 1;
-  padding: 1.5rem;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: #1f2937;
-  background: #f8fafc;
-  overflow: auto;
-  outline: none;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.ProseMirror:focus {
-  background: white;
-}
-
-/* Code block styles */
-.ProseMirror pre {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  border-radius: 8px;
-  padding: 1.5rem;
-  overflow-x: auto;
-  margin: 0;
-  position: relative;
-
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
 /* Monaco Editor line numbers are handled by the editor itself */
 
-/* Ensure code content wraps properly */
-.ProseMirror pre code {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  display: block;
-  min-height: 100%;
-  padding: 0;
-  background: transparent;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: white;
-}
 
-.ProseMirror code {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.9rem;
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.1);
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.ProseMirror pre code {
-  background-color: transparent;
-  padding: 0;
-  color: inherit;
-}
 
 /* Syntax highlighting styles */
 .lowlight .hljs-keyword {
@@ -581,7 +520,7 @@ html, body {
     align-items: stretch;
   }
 
-  .ProseMirror, #mermaid-preview {
+  #mermaid-preview {
     padding: 1rem;
   }
 }

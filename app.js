@@ -56,155 +56,30 @@ document.addEventListener('DOMContentLoaded', () => {
     "Sushi": 45`
     };
 
-    // Initialize Tiptap Editor
-    // Handle Tiptap Core and extensions loading - use correct global variable names
-    const Editor = window.Tiptap?.Editor || window.TiptapCore?.Editor;
-    const Document = window['@tiptap/extension-document']?.Document || window.TiptapExtensionDocument?.Document;
-    const Paragraph = window['@tiptap/extension-paragraph']?.Paragraph || window.TiptapExtensionParagraph?.Paragraph;
-    const Text = window['@tiptap/extension-text']?.Text || window.TiptapExtensionText?.Text;
-    const Code = window['@tiptap/extension-code']?.Code || window.TiptapExtensionCode?.Code;
-    const CodeBlock = window['@tiptap/extension-code-block']?.CodeBlock || window.TiptapExtensionCodeBlock?.CodeBlock;
-    const CodeBlockLowlight = window['@tiptap/extension-code-block-lowlight']?.CodeBlockLowlight || window.TiptapExtensionCodeBlockLowlight?.CodeBlockLowlight;
+    // Create native textarea editor
+    const editorContainer = document.getElementById('mermaid-code');
+    const textarea = document.createElement('textarea');
+    textarea.id = 'mermaid-textarea';
+    textarea.className = 'code-editor';
+    textarea.value = diagramTemplates['sequenceDiagram'];
+    textarea.style.width = '100%';
+    textarea.style.height = '100%';
+    textarea.style.padding = '10px';
+    textarea.style.boxSizing = 'border-box';
+    textarea.style.fontFamily = 'monospace';
+    textarea.style.fontSize = '14px';
+    textarea.style.border = 'none';
+    textarea.style.background = '#f5f5f5';
+    textarea.style.color = '#333';
     
-    // Check if all required components are loaded
-    if (!Editor || !Document || !Paragraph || !Text || !Code || !CodeBlockLowlight) {
-        console.error('Tiptap components failed to load');
-        console.log('Available globals:', Object.keys(window).filter(key => 
-            key.startsWith('Tiptap') || key.startsWith('@tiptap')));
-        console.log('Tiptap:', window.Tiptap);
-        console.log('TiptapCore:', window.TiptapCore);
-    }
+    editorContainer.innerHTML = '';
+    editorContainer.appendChild(textarea);
     
-    // Create Mermaid language for syntax highlighting
-    const mermaidLanguage = {
-        name: 'mermaid',
-        aliases: ['flowchart', 'sequence', 'class', 'state', 'gantt', 'pie'],
-        keywords: {
-            keyword: [
-                'graph', 'flowchart', 'sequenceDiagram', 'classDiagram', 'stateDiagram', 
-                'gantt', 'pie', 'participant', 'actor', 'title', 'section', 'note',
-                'loop', 'alt', 'else', 'opt', 'par', 'and', 'or', 'break', 'critical',
-                'note', 'state', 'class', 'interface', 'abstract', 'static', 'final',
-                'direction', 'TB', 'TD', 'BT', 'RL', 'LR', 'rank', 'left', 'right',
-                'up', 'down', 'over', 'inside'
-            ],
-            literal: [
-                'true', 'false', 'null' 
-            ]
-        },
-        contains: [
-            {
-                className: 'string',
-                begin: '[',
-                end: ']'
-            },
-            {
-                className: 'string',
-                begin: '(',
-                end: ')' 
-            },
-            {
-                className: 'string',
-                begin: '{',
-                end: '}'
-            },
-            {
-                className: 'comment',
-                begin: '%%',
-                end: '$'
-            },
-            {
-                className: 'number',
-                begin: '\\b\\d+\\b'
-            }
-        ]
-    };
+    // Add event listener for content changes
+    textarea.addEventListener('input', renderMermaid);
     
-    // Register Mermaid language with lowlight
-    if (lowlight.register) {
-        lowlight.register(mermaidLanguage);
-    }
-    
-    // Create editor instance
-    let mermaidCode;
-    
-    try {
-        if (!Editor || !Document || !Paragraph || !Text || !CodeBlockLowlight) {
-            throw new Error('Missing required Tiptap components');
-        }
-        
-        mermaidCode = Editor.create({
-            element: document.getElementById('mermaid-code'),
-            extensions: [
-                Document,
-                Paragraph,
-                Text,
-                Code,
-                CodeBlockLowlight.configure({
-                    lowlight,
-                    defaultLanguage: 'mermaid'
-                })
-            ],
-            content: diagramTemplates['sequenceDiagram']
-        });
-        
-        console.log('Tiptap editor created successfully');
-        
-        // Add event listener for content changes
-        mermaidCode.on('update', renderMermaid);
-        
-        // Initial render
-        renderMermaid();
-    } catch (error) {
-        console.error('Failed to create Tiptap editor:', error);
-        console.log('Available Tiptap components:', {
-            Editor: !!Editor,
-            Document: !!Document,
-            Paragraph: !!Paragraph,
-            Text: !!Text,
-            Code: !!Code,
-            CodeBlockLowlight: !!CodeBlockLowlight
-        });
-        
-        // Fallback to simple textarea if Tiptap fails
-        const fallbackTextarea = document.createElement('textarea');
-        fallbackTextarea.id = 'fallback-editor';
-        fallbackTextarea.className = 'code-editor fallback-editor';
-        fallbackTextarea.value = diagramTemplates['sequenceDiagram'];
-        fallbackTextarea.style.width = '100%';
-        fallbackTextarea.style.height = '100%';
-        fallbackTextarea.style.padding = '10px';
-        fallbackTextarea.style.boxSizing = 'border-box';
-        
-        const editorContainer = document.getElementById('mermaid-code');
-        editorContainer.innerHTML = '';
-        editorContainer.appendChild(fallbackTextarea);
-        
-        // Update render function to work with textarea
-        fallbackTextarea.addEventListener('input', () => {
-            renderMermaidWithFallback(fallbackTextarea.value);
-        });
-        
-        // Initial render with fallback
-        renderMermaidWithFallback(fallbackTextarea.value);
-        
-        // Update global render function reference
-        window.renderMermaid = () => {
-            renderMermaidWithFallback(fallbackTextarea.value);
-        };
-    }
-    
-    // Fallback render function for textarea
-    async function renderMermaidWithFallback(code) {
-        try {
-            const result = await mermaid.render('mermaid-chart', code);
-            mermaidPreview.innerHTML = result.svg;
-            updateTransform();
-        } catch (error) {
-            console.error('Render error:', error);
-            mermaidPreview.innerHTML = `<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`;
-        }
-    }
+    // Initial render
+    renderMermaid();
 
 
     const zoomInBtn = document.getElementById('zoom-in');
@@ -225,31 +100,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Render Mermaid chart
     async function renderMermaid() {
-        // Get text content from editor - use different API methods depending on availability
+        // Get text content from textarea
         let code;
         
         try {
-            // First check if mermaidCode editor instance exists
-            if (!mermaidCode || typeof mermaidCode !== 'object') {
-                // Check if fallback textarea is available
-                const fallbackEditor = document.getElementById('fallback-editor');
-                if (fallbackEditor) {
-                    code = fallbackEditor.value;
-                } else {
-                    throw new Error('No editor instance or fallback textarea available');
-                }
-            } else {
-                // Try different API methods to get text content
-                if (typeof mermaidCode.getText === 'function') {
-                    code = mermaidCode.getText();
-                } else if (typeof mermaidCode.content === 'string') {
-                    code = mermaidCode.content;
-                } else if (typeof mermaidCode.state?.doc?.textContent === 'string') {
-                    code = mermaidCode.state.doc.textContent;
-                } else {
-                    throw new Error('Could not get text content from Tiptap editor');
-                }
+            const textarea = document.getElementById('mermaid-textarea');
+            if (!textarea) {
+                throw new Error('No textarea found');
             }
+            code = textarea.value;
             
             // Debug: Log the code being rendered
             console.log('Rendering code:', code);
@@ -388,17 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             let code;
             
-            // Check if using Tiptap editor or fallback textarea
-            if (mermaidCode && typeof mermaidCode.getText === 'function') {
-                code = mermaidCode.getText();
-            } else {
-                const fallbackEditor = document.getElementById('fallback-editor');
-                if (fallbackEditor) {
-                    code = fallbackEditor.value;
-                } else {
-                    throw new Error('No editor found');
-                }
+            // Get code from textarea
+            const textarea = document.getElementById('mermaid-textarea');
+            if (!textarea) {
+                throw new Error('No textarea found');
             }
+            code = textarea.value;
             
             await navigator.clipboard.writeText(code);
             copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>';
@@ -535,16 +389,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clear editor
     function clearEditor() {
         if (confirm('Are you sure you want to clear the current code?')) {
-            // Check if using Tiptap editor or fallback textarea
-            if (mermaidCode && mermaidCode.commands && typeof mermaidCode.commands.setContent === 'function') {
-                mermaidCode.commands.setContent('');
+            // Clear the textarea
+            const textarea = document.getElementById('mermaid-textarea');
+            if (textarea) {
+                textarea.value = '';
                 renderMermaid();
-            } else {
-                const fallbackEditor = document.getElementById('fallback-editor');
-                if (fallbackEditor) {
-                    fallbackEditor.value = '';
-                    renderMermaidWithFallback('');
-                }
             }
         }
     }
@@ -558,16 +407,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedType = diagramType.value;
         const templateContent = diagramTemplates[selectedType] || '';
         
-        // Check if using Tiptap editor or fallback textarea
-        if (mermaidCode && mermaidCode.commands && typeof mermaidCode.commands.setContent === 'function') {
-            mermaidCode.commands.setContent(templateContent);
+        // Set template content to textarea
+        const textarea = document.getElementById('mermaid-textarea');
+        if (textarea) {
+            textarea.value = templateContent;
             renderMermaid();
-        } else {
-            const fallbackEditor = document.getElementById('fallback-editor');
-            if (fallbackEditor) {
-                fallbackEditor.value = templateContent;
-                renderMermaidWithFallback(templateContent);
-            }
         }
     }
 

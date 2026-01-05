@@ -11,13 +11,6 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
-    "@tiptap/core": "^3.14.0",
-    "@tiptap/extension-code": "^3.14.0",
-    "@tiptap/extension-code-block-lowlight": "^3.14.0",
-    "@tiptap/extension-document": "^3.14.0",
-    "@tiptap/extension-paragraph": "^3.14.0",
-    "@tiptap/extension-text": "^3.14.0",
-    "@tiptap/react": "^3.14.0",
     "@vercel/analytics": "^1.6.1",
     "lowlight": "^3.3.0",
     "mermaid": "^11.12.2",

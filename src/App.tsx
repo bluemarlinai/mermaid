@@ -122,6 +122,13 @@ interface ChartStyleConfig {
     tertiaryColor?: string;
     secondaryBorderColor?: string;
     tertiaryBorderColor?: string;
+    // Class diagram specific variables
+    classHeaderBackgroundColor?: string;
+    classHeaderBorderColor?: string;
+    classHeaderTextColor?: string;
+    classBackgroundColor?: string;
+    classBorderColor?: string;
+    classTextColor?: string;
   };
   cssFilter?: string;
 }
@@ -159,7 +166,14 @@ const App: React.FC = () => {
         lineColor: '#4b5563', // 柔和的深灰色线条
         textColor: '#374151', // 柔和的深灰色文字
         secondaryColor: '#ec4899',
-        tertiaryColor: '#f9fafb'
+        tertiaryColor: '#f9fafb',
+        // Class diagram specific colors
+        classHeaderBackgroundColor: '#f7e9b9', // 浅黄色标题栏
+        classHeaderBorderColor: '#c4a767', // 棕色边框
+        classHeaderTextColor: '#374151', // 深灰色文字
+        classBackgroundColor: '#ffffff', // 白色内容区
+        classBorderColor: '#c4a767', // 棕色边框
+        classTextColor: '#374151' // 深灰色文字
       }
     },
     handDrawn: {
@@ -172,7 +186,14 @@ const App: React.FC = () => {
         lineColor: '#4b5563', // 柔和的深灰色线条
         textColor: '#374151', // 柔和的深灰色文字
         secondaryColor: '#ec4899',
-        tertiaryColor: '#f9fafb'
+        tertiaryColor: '#f9fafb',
+        // Class diagram specific colors
+        classHeaderBackgroundColor: '#f7e9b9', // 浅黄色标题栏
+        classHeaderBorderColor: '#c4a767', // 棕色边框
+        classHeaderTextColor: '#374151', // 深灰色文字
+        classBackgroundColor: '#ffffff', // 白色内容区
+        classBorderColor: '#c4a767', // 棕色边框
+        classTextColor: '#374151' // 深灰色文字
       },
       cssFilter: 'url(#handDrawnFilter)'
     },
@@ -186,7 +207,14 @@ const App: React.FC = () => {
         lineColor: '#e5e7eb',
         textColor: '#e5e7eb',
         secondaryColor: '#ec4899',
-        tertiaryColor: '#374151'
+        tertiaryColor: '#374151',
+        // Class diagram specific colors
+        classHeaderBackgroundColor: '#7c3aed', // 紫色标题栏
+        classHeaderBorderColor: '#5b21b6', // 深紫色边框
+        classHeaderTextColor: '#ffffff', // 白色文字
+        classBackgroundColor: '#1f2937', // 深色内容区
+        classBorderColor: '#5b21b6', // 深紫色边框
+        classTextColor: '#e5e7eb' // 浅色文字
       }
     },
     outline: {
@@ -201,7 +229,14 @@ const App: React.FC = () => {
         secondaryColor: 'transparent',
         secondaryBorderColor: '#ec4899',
         tertiaryColor: 'transparent',
-        tertiaryBorderColor: '#9ca3af'
+        tertiaryBorderColor: '#9ca3af',
+        // Class diagram specific colors
+        classHeaderBackgroundColor: 'transparent', // 透明标题栏
+        classHeaderBorderColor: '#6366f1', // 蓝色边框
+        classHeaderTextColor: '#1f2937', // 深灰色文字
+        classBackgroundColor: 'transparent', // 透明内容区
+        classBorderColor: '#6366f1', // 蓝色边框
+        classTextColor: '#1f2937' // 深灰色文字
       }
     }
   };
