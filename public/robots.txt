@@ -8,4 +8,4 @@ Disallow: /src/
 Disallow: /public/
 
 # 网站地图位置 (English and Chinese versions)
-Sitemap: https://mermaid-editor.example.com/sitemap.xml
+Sitemap: https://mermaid-ebon.vercel.app/sitemap.xml

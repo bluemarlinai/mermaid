@@ -1,65 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://mermaid-editor.example.com/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/" />
+    <loc>https://mermaid-ebon.vercel.app/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://mermaid-editor.example.com/?type=flowchart</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/?type=flowchart" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/?type=flowchart" />
+    <loc>https://mermaid-ebon.vercel.app/?type=flowchart</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/?type=flowchart" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/?type=flowchart" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mermaid-editor.example.com/?type=sequenceDiagram</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/?type=sequenceDiagram" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/?type=sequenceDiagram" />
+    <loc>https://mermaid-ebon.vercel.app/?type=sequenceDiagram</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/?type=sequenceDiagram" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/?type=sequenceDiagram" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mermaid-editor.example.com/?type=classDiagram</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/?type=classDiagram" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/?type=classDiagram" />
+    <loc>https://mermaid-ebon.vercel.app/?type=classDiagram</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/?type=classDiagram" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/?type=classDiagram" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mermaid-editor.example.com/?type=stateDiagram</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/?type=stateDiagram" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/?type=stateDiagram" />
+    <loc>https://mermaid-ebon.vercel.app/?type=stateDiagram</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/?type=stateDiagram" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/?type=stateDiagram" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mermaid-editor.example.com/?type=erDiagram</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/?type=erDiagram" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/?type=erDiagram" />
+    <loc>https://mermaid-ebon.vercel.app/?type=erDiagram</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/?type=erDiagram" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/?type=erDiagram" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mermaid-editor.example.com/?type=gantt</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/?type=gantt" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/?type=gantt" />
+    <loc>https://mermaid-ebon.vercel.app/?type=gantt</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/?type=gantt" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/?type=gantt" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mermaid-editor.example.com/?type=pie</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-editor.example.com/?type=pie" />
-    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-editor.example.com/?type=pie" />
+    <loc>https://mermaid-ebon.vercel.app/?type=pie</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://mermaid-ebon.vercel.app/?type=pie" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://mermaid-ebon.vercel.app/?type=pie" />
     <lastmod>2026-01-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
