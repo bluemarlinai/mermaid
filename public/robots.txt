@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# 禁止访问的目录
+Disallow: /node_modules/
+Disallow: /dist/
+Disallow: /src/
+Disallow: /public/
+
+# 网站地图位置
+Sitemap: https://mermaid-editor.example.com/sitemap.xml

@@ -128,16 +128,20 @@ const App: React.FC = () => {
   // Monaco Editor options
   const editorOptions: any = {
     language: 'mermaid', // Use our custom mermaid language
-    theme: 'vs-light',
+    theme: 'vs-light', // Keep vs-light theme for readability
     fontSize: 14,
-    fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+    fontFamily: 'JetBrains Mono, Fira Code, Monaco, Menlo, Ubuntu Mono, monospace',
     lineNumbers: 'on', // Enable line numbers
-    minimap: { enabled: true },
+    minimap: { enabled: true, scale: 1, showSlider: 'always' },
     scrollBeyondLastLine: false,
     automaticLayout: true,
     wordWrap: 'on',
     wrappingIndent: 'indent',
-    tabSize: 2
+    tabSize: 2,
+    backgroundColor: '#fafafa', // Match our updated editor background color
+    lineDecorationsWidth: 10,
+    lineNumbersMinChars: 3,
+    renderLineHighlight: 'all'
   };
 
   // Handle editor content changes
@@ -148,12 +152,21 @@ const App: React.FC = () => {
     }
   };
 
-  // Initialize Mermaid and render chart
+  // Initialize Mermaid with basic configuration
   useEffect(() => {
-    // Initialize Mermaid with basic configuration
+    // Initialize Mermaid with updated theme for better visibility
     mermaid.initialize({
       startOnLoad: false,
-      theme: 'default',
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#6366f1',
+        primaryTextColor: '#ffffff',
+        primaryBorderColor: '#4f46e5',
+        lineColor: '#1f2937',
+        textColor: '#1f2937',
+        secondaryColor: '#ec4899',
+        tertiaryColor: '#f3f4f6'
+      },
       securityLevel: 'loose'
     });
 
@@ -307,6 +320,66 @@ const App: React.FC = () => {
     }
   };
 
+  // Download PNG
+  const downloadPng = () => {
+    const svgElement = document.querySelector('#mermaid-chart svg');
+    if (!svgElement) {
+      alert('No chart to download');
+      return;
+    }
+
+    try {
+      // Get the SVG data
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      
+      // Create a canvas element
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      
+      if (!context) {
+        throw new Error('Canvas context not available');
+      }
+      
+      // Create an image object
+      const img = new Image();
+      
+      // Set up the image loading
+      img.onload = () => {
+        // Set canvas size to match image
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Draw the image on the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(img, 0, 0);
+        
+        // Convert canvas to PNG
+        const pngData = canvas.toDataURL('image/png');
+        
+        // Create download link
+        const downloadLink = document.createElement('a');
+        downloadLink.download = 'mermaid-chart.png';
+        downloadLink.href = pngData;
+        downloadLink.style.display = 'none';
+        
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      };
+      
+      img.onerror = () => {
+        throw new Error('Failed to load SVG as image');
+      };
+      
+      // Set the image source to the SVG data
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+      img.src = URL.createObjectURL(svgBlob);
+    } catch (error) {
+      console.error('PNG download failed:', error);
+      alert('PNG download failed, please try again');
+    }
+  };
+
   // Clear editor
   const clearEditor = () => {
     setCode('');
@@ -361,33 +434,29 @@ const App: React.FC = () => {
           <div className="preview-toolbar">
             <button id="zoom-out" className="toolbar-btn" title="Zoom Out" onClick={zoomOut}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M7 10.5a.5.5 0 0 0 .5.5h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1z"/>
-                <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm10 1a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V1z"/>
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                <path d="M4 6.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
               </svg>
             </button>
             <button id="zoom-in" className="toolbar-btn" title="Zoom In" onClick={zoomIn}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M7.5 14a.5.5 0 0 0 .5-.5v-1h1a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-1v-1a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1h-1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h1v1a.5.5 0 0 0 .5.5h1zM3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm10 1a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V1z"/>
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                <path d="M7 3.5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 7 3.5z"/>
               </svg>
             </button>
             <button id="download-svg-btn" className="toolbar-btn" title="Download SVG" onClick={downloadSvg}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
-                <path d="M4.5 12.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5zm0-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+                <path d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+                <path d="M8 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
               </svg>
+              <span>SVG</span>
             </button>
-            <button id="download-png-btn" className="toolbar-btn" title="Download PNG" disabled>
+            <button id="download-png-btn" className="toolbar-btn" title="Download PNG" onClick={downloadPng}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
-                <path d="M6.5 10.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-                <path d="M3.051 3.15a2.5 2.5 0 0 1 3.89-1.005l-.002.003A2.5 2.5 0 0 1 8.005 5H8a2.5 2.5 0 0 1 2.5-2.5v.003a2.5 2.5 0 0 1 1.77 4.208 2.5 2.5 0 0 1-.586.856 2.5 2.5 0 0 1-3.764 0 2.5 2.5 0 0 1-.586-.856A2.5 2.5 0 0 1 5.5 5.003V5a2.5 2.5 0 0 1-2.449-2.85z"/>
-                <path d="M12 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                <path d="M9.5 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                <path d="M6.5 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                <path d="M12 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                <path d="M9.5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                <path d="M6.5 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                <path d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
+                <path d="M8 14a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
               </svg>
+              <span>PNG</span>
             </button>
             <button id="fullscreen-btn" className="toolbar-btn" title="Fullscreen" onClick={toggleFullscreen}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
