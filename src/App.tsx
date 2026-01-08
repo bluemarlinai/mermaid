@@ -315,9 +315,16 @@ const App: React.FC = () => {
     renderMermaid(code);
   }, [code]);
 
-  // Render chart whenever style changes
+  // Reinitialize Mermaid when style changes
   useEffect(() => {
-    console.log('useEffect: style changed, calling renderMermaid');
+    console.log('useEffect: style changed, reinitializing Mermaid');
+    const currentStyle = chartStyles[chartStyle];
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: currentStyle.theme,
+      themeVariables: currentStyle.themeVariables
+    });
     renderMermaid(code);
   }, [chartStyle, code]);
 
@@ -333,14 +340,6 @@ const App: React.FC = () => {
 
       // Get current style configuration
       const currentStyle = chartStyles[chartStyle];
-      
-      // Update Mermaid theme configuration before rendering
-      mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: 'loose',
-        theme: currentStyle.theme,
-        themeVariables: currentStyle.themeVariables
-      });
       
       // Render Mermaid chart - use unique ID to avoid conflicts
       const uniqueId = 'mermaid-chart-' + Date.now();
