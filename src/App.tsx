@@ -345,10 +345,27 @@ const App: React.FC = () => {
       // Get current style configuration
       const currentStyle = chartStyles[chartStyle];
       
+      // Handle parentheses in subgraph names by adding quotes
+      // This regex matches subgraph statements and captures the name part
+      const escapedCode = code.replace(/subgraph\s+([^\n]+)/g, (match, name) => {
+        // Trim whitespace from the name
+        const trimmedName = name.trim();
+        
+        // Check if the name already has quotes
+        const hasQuotes = trimmedName.startsWith('"') || trimmedName.startsWith("'");
+        
+        // If not quoted and contains parentheses, add quotes around the name
+        if (!hasQuotes && /[()]/g.test(trimmedName)) {
+          return 'subgraph "' + trimmedName + '"';
+        }
+        
+        return match;
+      });
+      
       // Render Mermaid chart - use unique ID to avoid conflicts
       const uniqueId = 'mermaid-chart-' + Date.now();
       console.log('renderMermaid: Calling mermaid.render with ID:', uniqueId);
-      const result = await mermaid.render(uniqueId, code);
+      const result = await mermaid.render(uniqueId, escapedCode);
       console.log('renderMermaid: Render completed, result:', result.svg.substring(0, 100) + '...');
       
       // Apply CSS filter if defined for the style
