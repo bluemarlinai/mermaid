@@ -301,8 +301,7 @@ const App: React.FC = () => {
           setMermaidSvg(result.svg);
         }
         
-        // Center the chart after initial render
-        setTimeout(moveToFit, 200);
+        // No need for setTimeout - CSS Flexbox handles initial centering
       } catch (error: any) {
         console.error('Default chart render error:', error);
         setMermaidSvg(`<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`);
@@ -316,8 +315,7 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log('useEffect: code changed, calling renderMermaid');
     renderMermaid(code);
-    // Center the chart after code changes
-    setTimeout(moveToFit, 200);
+    // No need for setTimeout - CSS Flexbox handles centering
   }, [code]);
 
   // Reinitialize Mermaid when style changes
@@ -331,8 +329,7 @@ const App: React.FC = () => {
       themeVariables: currentStyle.themeVariables
     });
     renderMermaid(code);
-    // Center the chart after style changes
-    setTimeout(moveToFit, 200);
+    // No need for setTimeout - CSS Flexbox handles centering
   }, [chartStyle, code]);
 
   // Render Mermaid chart when editor content changes
@@ -419,17 +416,26 @@ const App: React.FC = () => {
 
     if (newZoomLevel !== zoomLevel && containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
-      const mouseXInContainer = e.clientX - containerRect.left;
-      const mouseYInContainer = e.clientY - containerRect.top;
+      const containerCenterX = containerRect.width / 2;
+      const containerCenterY = containerRect.height / 2;
+      
+      // 计算鼠标相对于容器中心的位置
+      const mouseXFromCenter = e.clientX - containerRect.left - containerCenterX;
+      const mouseYFromCenter = e.clientY - containerRect.top - containerCenterY;
 
       const oldScale = zoomLevel / 100;
       const newScale = newZoomLevel / 100;
 
-      const mouseXOnContent = (mouseXInContainer - translateX) / oldScale;
-      const mouseYOnContent = (mouseYInContainer - translateY) / oldScale;
+      // 计算鼠标在内容上的位置（相对于内容中心）
+      const mouseXOnContent = mouseXFromCenter / oldScale;
+      const mouseYOnContent = mouseYFromCenter / oldScale;
 
-      setTranslateX(mouseXInContainer - (mouseXOnContent * newScale));
-      setTranslateY(mouseYInContainer - (mouseYOnContent * newScale));
+      // 计算新的偏移量，确保鼠标位置在缩放后保持不变
+      const newTranslateX = mouseXFromCenter - (mouseXOnContent * newScale);
+      const newTranslateY = mouseYFromCenter - (mouseYOnContent * newScale);
+
+      setTranslateX(newTranslateX);
+      setTranslateY(newTranslateY);
       setZoomLevel(newZoomLevel);
     }
   };
