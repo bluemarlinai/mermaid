@@ -282,24 +282,19 @@ const App: React.FC = () => {
 
   // Initialize Mermaid with basic configuration
   useEffect(() => {
-    // Get current style configuration
-    const currentStyle = chartStyles[chartStyle];
-    
-    // Initialize Mermaid with updated theme for better visibility
+    // Initialize Mermaid with basic configuration
     mermaid.initialize({
       startOnLoad: false,
-      theme: currentStyle.theme,
-      themeVariables: currentStyle.themeVariables,
       securityLevel: 'loose'
     });
 
     // Render default chart on load
     const renderDefaultChart = async () => {
       try {
-        // Simplified render call - Mermaid doesn't expect config as third parameter
-        const result = await mermaid.render('mermaid-chart', diagramTemplates.sequenceDiagram);
+        const result = await mermaid.render('mermaid-chart-default', diagramTemplates.sequenceDiagram);
         
         // Apply CSS filter if defined for the style
+        const currentStyle = chartStyles[chartStyle];
         if (currentStyle.cssFilter) {
           setMermaidSvg(result.svg.replace('<svg', `<svg style="filter: ${currentStyle.cssFilter}"`));
         } else {
@@ -341,13 +336,16 @@ const App: React.FC = () => {
       
       // Update Mermaid theme configuration before rendering
       mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'loose',
         theme: currentStyle.theme,
         themeVariables: currentStyle.themeVariables
       });
       
-      // Render Mermaid chart - remove the third parameter that's causing issues
-      console.log('renderMermaid: Calling mermaid.render');
-      const result = await mermaid.render('mermaid-chart', code);
+      // Render Mermaid chart - use unique ID to avoid conflicts
+      const uniqueId = 'mermaid-chart-' + Date.now();
+      console.log('renderMermaid: Calling mermaid.render with ID:', uniqueId);
+      const result = await mermaid.render(uniqueId, code);
       console.log('renderMermaid: Render completed, result:', result.svg.substring(0, 100) + '...');
       
       // Apply CSS filter if defined for the style
