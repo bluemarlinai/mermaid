@@ -300,6 +300,9 @@ const App: React.FC = () => {
         } else {
           setMermaidSvg(result.svg);
         }
+        
+        // Center the chart after initial render
+        setTimeout(moveToFit, 200);
       } catch (error: any) {
         console.error('Default chart render error:', error);
         setMermaidSvg(`<div style="color: red; padding: 2rem;">Render error: ${error.message}</div>`);
@@ -313,6 +316,8 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log('useEffect: code changed, calling renderMermaid');
     renderMermaid(code);
+    // Center the chart after code changes
+    setTimeout(moveToFit, 200);
   }, [code]);
 
   // Reinitialize Mermaid when style changes
@@ -326,6 +331,8 @@ const App: React.FC = () => {
       themeVariables: currentStyle.themeVariables
     });
     renderMermaid(code);
+    // Center the chart after style changes
+    setTimeout(moveToFit, 200);
   }, [chartStyle, code]);
 
   // Render Mermaid chart when editor content changes
@@ -425,6 +432,14 @@ const App: React.FC = () => {
       setTranslateY(mouseYInContainer - (mouseYOnContent * newScale));
       setZoomLevel(newZoomLevel);
     }
+  };
+
+  // Move to fit: reset zoom and position
+  const moveToFit = () => {
+    setZoomLevel(100);
+    // Reset translation to 0, which will make the content center via flexbox
+    setTranslateX(0);
+    setTranslateY(0);
   };
 
   // Toggle fullscreen
@@ -744,6 +759,12 @@ const App: React.FC = () => {
                 <path d="M7 3.5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0v-2h-2a.5.5 0 0 1 0-1h2v-2A.5.5 0 0 1 7 3.5z"/>
               </svg>
             </button>
+            <button id="move-to-fit-btn" className="toolbar-btn" title="Move to fit" onClick={moveToFit}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M3 8a5 5 0 1 1 10 0 5 5 0 0 1-10 0zm5-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
+                <path d="M8 2.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 1 .5-.5zm0 8a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zM5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1 .5-.5zm4-3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5z"/>
+              </svg>
+            </button>
             <button id="download-svg-btn" className="toolbar-btn download-btn" title="Download SVG" onClick={downloadSvg}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="16" height="16" fill="#1f2937">
                 <path d="M220.16 865.166222V158.947556h338.147556v184.32c0 16.952889 13.767111 30.72 30.72 30.72h184.433777v148.48h61.44V312.433778h-0.796444c0.682667-9.102222-2.616889-18.090667-8.988445-24.576L643.413333 106.496c-6.712889-6.599111-16.042667-9.784889-25.372444-8.874667H220.16c-34.019556 0-61.553778 27.534222-61.553778 61.44v706.218667c0 33.905778 27.534222 61.44 61.553778 61.44h367.729778v-61.44H220.16z m399.587556-691.541333l139.036444 138.808889H619.747556v-138.808889z"></path>
@@ -779,7 +800,10 @@ const App: React.FC = () => {
             onMouseLeave={handleDragEnd}
             style={{
               cursor: isDragging ? 'grabbing' : 'grab',
-              userSelect: 'none'
+              userSelect: 'none',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
             }}
           >
             <div
@@ -787,7 +811,7 @@ const App: React.FC = () => {
               dangerouslySetInnerHTML={{ __html: mermaidSvg }}
               style={{
                 transform: `translate(${translateX}px, ${translateY}px) scale(${zoomLevel / 100})`,
-                transformOrigin: '0 0'
+                transformOrigin: 'center center'
               }}
             />
           </div>
