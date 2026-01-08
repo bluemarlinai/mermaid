@@ -782,9 +782,8 @@ const App: React.FC = () => {
               </svg>
             </button>
             <button id="move-to-fit-btn" className="toolbar-btn" title="Move to fit" onClick={moveToFit}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M3 8a5 5 0 1 1 10 0 5 5 0 0 1-10 0zm5-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
-                <path d="M8 2.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0v-4a.5.5 0 0 1 .5-.5zm0 8a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zM5.5 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1 .5-.5zm4-3a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5z"/>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 1024 1024">
+                <path d="M597.333333 426.666667h277.333334v-58.660572h-218.672762V149.333333H597.333333V426.666667zM149.333333 597.333333H426.666667v277.333334h-58.660572v-218.672762H149.333333V597.333333zM874.666667 597.333333H597.333333v277.333334h58.660572v-218.672762h218.672762V597.333333zM149.333333 426.666667H426.666667V149.333333h-58.660572v218.672762H149.333333V426.666667z"/>
               </svg>
             </button>
             <button id="download-svg-btn" className="toolbar-btn download-btn" title="Download SVG" onClick={downloadSvg}>
@@ -801,8 +800,8 @@ const App: React.FC = () => {
             </button>
             <button id="copy-image-btn" className="toolbar-btn" title="Copy Image" onClick={copyImage}>
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm2.5 1.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-8z"/>
-                <path d="M6 2.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-8zm0 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-8zm0 5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-8z"/>
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
               </svg>
             </button>
             <button id="fullscreen-btn" className="toolbar-btn" title="Fullscreen" onClick={toggleFullscreen}>
