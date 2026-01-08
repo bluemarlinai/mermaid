@@ -440,9 +440,8 @@ const App: React.FC = () => {
     }
   };
 
-  // Move to fit: reset zoom and position
+  // Move to fit: reset position to center while keeping current zoom level
   const moveToFit = () => {
-    setZoomLevel(100);
     // Reset translation to 0, which will make the content center via flexbox
     setTranslateX(0);
     setTranslateY(0);
